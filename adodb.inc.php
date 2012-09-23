@@ -971,8 +971,8 @@ function HasFailedTrans()
  * Execute SQL
  *
  * @param string $sql        an SQL statement to execute, or possibly an array holding prepared statement ($sql[0] will hold sql text)
- * @param [inputarr]    holds the input data to bind to. Null elements will be set to null.
- * @return ADORecordSet or false
+ * @param mixed $inputarr    holds the input data to bind to. Null elements will be set to null.
+ * @return ADORecordSet|bool or false
  */
 function Execute($sql, $inputarr = false)
 {
@@ -1449,8 +1449,8 @@ function CacheGetAssoc($secs2cache, $sql=false, $inputarr=false,$force_array = f
 * Return first element of first row of sql statement. Recordset is disposed
 * for you.
 *
-* @param sql            SQL statement
-* @param [inputarr]        input bind array
+* @param string $sql            an SQL statement
+* @param mixed $inputarr        input bind array
 */
 function GetOne($sql,$inputarr=false)
 {
@@ -1569,8 +1569,8 @@ function OffsetDate($dayFraction,$date=false)
 
 /**
 *
-* @param sql            SQL statement
-* @param [inputarr]        input bind array
+* @param string $sql            SQL statement
+* @param array|bool $inputarr [inputarr]        input bind array
 */
 function GetArray($sql,$inputarr=false)
 {
@@ -1632,8 +1632,8 @@ function GetRandRow($sql, $arr= false)
 * Return one row of sql statement. Recordset is disposed for you.
 * Note that SelectLimit should not be called.
 *
-* @param sql            SQL statement
-* @param [inputarr]        input bind array
+* @param string $sql            SQL statement
+* @param array|bool $inputarr        input bind array
 */
 function GetRow($sql,$inputarr=false)
 {
