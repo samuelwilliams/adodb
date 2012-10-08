@@ -542,7 +542,7 @@ function _adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page,
 	return $rsreturn;
 }
 
-// Iván Oliva version
+// Ivï¿½n Oliva version
 function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr=false, $secs2cache=0) 
 {
 
@@ -598,7 +598,8 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 	global $ADODB_QUOTE_FIELDNAMES;
 
 		if (!$rs) {
-			printf(ADODB_BAD_RS,'GetUpdateSQL');
+			$error_message = sprintf(ADODB_BAD_RS,'GetUpdateSQL');
+            trigger_error($error_message);
 			return false;
 		}
 	
@@ -806,7 +807,8 @@ static $cacheCols;
 		$recordSet = $rs;
 	
 	} else {
-		printf(ADODB_BAD_RS,'GetInsertSQL');
+		$error_message = sprintf(ADODB_BAD_RS, 'GetInsertSQL');
+        trigger_error($error_message);
 		return false;
 	}
 
