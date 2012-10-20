@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Connection object. For connecting to databases, and executing queries.
+ */
 class ADOConnection
 {
     /**
@@ -41,26 +44,129 @@ class ADOConnection
      * @var int maximum size of blobs or large text fields (262144 = 256K)-- some db's die otherwise like foxpro
      */
     public $maxblobsize = 262144;
-    public $concat_operator = '+'; /// default concat operator -- change to || for Oracle/Interbase
-    public $substr = 'substr'; /// substring operator
-    public $length = 'length'; /// string length ofperator
-    public $random = 'rand()'; /// random function
-    public $upperCase = 'upper'; /// uppercase function
-    public $fmtDate = "'Y-m-d'"; /// used by DBDate() as the default date format used by the database
-    public $fmtTimeStamp = "'Y-m-d, h:i:s A'"; /// used by DBTimeStamp as the default timestamp fmt.
-    public $true = '1'; /// string that represents TRUE for a database
-    public $false = '0'; /// string that represents FALSE for a database
-    public $replaceQuote = "\\'"; /// string to use to replace quotes
-    public $nameQuote = '"'; /// string to use to quote identifiers and names
-    public $charSet = false; /// character set to use - only for interbase, postgres and oci8
+
+    /**
+     * default concat operator -- change to || for Oracle/Interbase
+     *
+     * @var string
+     */
+    public $concat_operator = '+';
+
+    /**
+     * substring operator
+     *
+     * @var string
+     */
+    public $substr = 'substr';
+
+    /**
+     * string length operator
+     *
+     * @var string
+     */
+    public $length = 'length';
+
+    /**
+     * random function
+     *
+     * @var string
+     */
+    public $random = 'rand()';
+
+    /**
+     * uppercase function
+     *
+     * @var string
+     */
+    public $upperCase = 'upper';
+
+    /**
+     * used by DBDate() as the default date format used by the database
+     *
+     * @var string
+     */
+    public $fmtDate = "'Y-m-d'";
+
+    /**
+     * used by DBTimeStamp as the default timestamp fmt.
+     *
+     * @var string
+     */
+    public $fmtTimeStamp = "'Y-m-d, h:i:s A'";
+
+    /**
+     * String that represents TRUE for a database
+     *
+     * @var string
+     */
+    public $true = '1';
+
+    /**
+     * String that represents FALSE for a database
+     *
+     * @var string
+     */
+    public $false = '0';
+
+    /**
+     * String to use to replace quotes
+     *
+     * @var string
+     */
+    public $replaceQuote = "\\'";
+
+    /**
+     * string to use to quote identifiers and names
+     *
+     * @var string
+     */
+    public $nameQuote = '"';
+
+    /**
+     * character set to use - only for interbase, postgres and oci8
+     *
+     * @var bool|string
+     */
+    public $charSet = false;
+
+    /**
+     * @var string
+     */
     public $metaDatabasesSQL = '';
+
+    /**
+     * @var string
+     */
     public $metaTablesSQL = '';
-    public $uniqueOrderBy = false; /// All order by columns have to be unique
+
+    /**
+     * All order by columns have to be unique
+     *
+     * @var bool
+     */
+    public $uniqueOrderBy = false;
+
+    /**
+     * @var string
+     */
     public $emptyDate = '&nbsp;';
+
+    /**
+     * @var string
+     */
     public $emptyTimeStamp = '&nbsp;';
+
+    /**
+     * @var bool|int
+     */
     public $lastInsID = false;
 
-    public $hasInsertID = false; /// supports autoincrement ID?
+    /**
+     * supports autoincrement ID?
+     *
+     * @var bool
+     */
+    public $hasInsertID = false;
     public $hasAffectedRows = false; /// supports affected rows for update/delete?
     public $hasTop = false; /// support mssql/access SELECT TOP 10 * FROM TABLE
     public $hasLimit = false; /// support pgsql/mysql SELECT * FROM TABLE LIMIT 10
@@ -101,7 +207,13 @@ class ADOConnection
     public $sysDate = false; /// name of function that returns the current date
     public $sysTimeStamp = false; /// name of function that returns the current timestamp
     public $sysUTimeStamp = false; // name of function that returns the current timestamp accurate to the microsecond or nearest fraction
-    public $arrayClass = 'ADORecordSet_array'; /// name of class used to generate array recordsets, which are pre-downloaded recordsets
+
+    /**
+     * name of class used to generate array recordsets, which are pre-downloaded recordsets
+     *
+     * @var string
+     */
+    public $arrayClass = 'ADORecordSet_array';
 
     public $noNullStrings = false; /// oracle specific stuff - if true ensures that '' is converted to ' '
     public $numCacheHits = 0;
@@ -140,20 +252,68 @@ class ADOConnection
      * @var bool|string
      */
     public $blobEncodeType = false;
+
+    /**
+     * @var string
+     */
     public $rsPrefix = "ADORecordSet_";
 
-    public $autoCommit = true; /// do not modify this yourself - actually private
-    public $transOff = 0; /// temporarily disable transactions
-    public $transCnt = 0; /// count of nested transactions
+    /**
+     * do not modify this yourself - actually private
+     *
+     * @var bool
+     */
+    public $autoCommit = true;
 
+    /**
+     * temporarily disable transactions
+     *
+     * @var int
+     */
+    public $transOff = 0;
+
+    /**
+     * count of nested transactions
+     *
+     * @var int
+     */
+    public $transCnt = 0;
+
+    /**
+     * @var bool
+     */
     public $fetchMode = false;
 
-    public $null2null = 'null'; // in autoexecute/getinsertsql/getupdatesql, this value will be converted to a null
-    public $bulkBind = false; // enable 2D Execute array
+    /**
+     * in autoexecute/getinsertsql/getupdatesql, this value will be converted to a null
+     *
+     * @var string
+     */
+    public $null2null = 'null';
 
+    /**
+     * enable 2D Execute array
+     *
+     * @var bool
+     */
+    public $bulkBind = false;
+
+    /**
+     * @var bool
+     */
     private $_oldRaiseFn = false;
+
+    /**
+     * @var mixed
+     */
     private $_transOK = null;
-    private $_connectionID = false; /// The returned link identifier whenever a successful database connection is made.
+
+    /**
+     * The returned link identifier whenever a successful database connection is made.
+     *
+     * @var bool|int
+     */
+    private $_connectionID = false;
 
     /**
      * A variable which was used to keep the returned last error message.
@@ -208,7 +368,6 @@ class ADOConnection
      * @var string Transaction mode
      */
     private $_transmode = '';
-
 
     /**
      * Constructor
@@ -680,17 +839,23 @@ class ADOConnection
         return false;
     }
 
-
+    /**
+     * @param bool $saveErrs
+     * @return bool
+     */
     public function IgnoreErrors($saveErrs = false)
     {
         if (!$saveErrs) {
             $saveErrs = array($this->raiseErrorFn, $this->_transOK);
             $this->raiseErrorFn = false;
+
             return $saveErrs;
-        } else {
-            $this->raiseErrorFn = $saveErrs[0];
-            $this->_transOK = $saveErrs[1];
         }
+
+        $this->raiseErrorFn = $saveErrs[0];
+        $this->_transOK = $saveErrs[1];
+
+        return true;
     }
 
     /**
@@ -980,20 +1145,22 @@ class ADOConnection
         return false;
     }
 
-
     /**
      * Portable Insert ID. Pablo Roca <pabloroca#mvps.org>
-     *
-     * @return  the last inserted ID. All databases support this. But aware possible
+     * the last inserted ID. All databases support this. But aware possible
      * problems in multiuser environments. Heavy test this before deploying.
+     *
+     * @param string $table
+     * @param string $id
+     * @return bool|int|mixed
      */
     public function PO_Insert_ID($table = "", $id = "")
     {
         if ($this->hasInsertID) {
             return $this->Insert_ID($table, $id);
-        } else {
-            return $this->GetOne("SELECT MAX($id) FROM $table");
         }
+
+        return $this->GetOne("SELECT MAX($id) FROM $table");
     }
 
     /**
@@ -1046,7 +1213,11 @@ class ADOConnection
     }
 
     /**
-     * @returns an array with the primary key columns in it.
+     * Returns an array with the primary key columns in it.
+     *
+     * @param $table
+     * @param bool $owner
+     * @return array|bool
      */
     public function MetaPrimaryKeys($table, $owner = false)
     {
@@ -1107,7 +1278,7 @@ class ADOConnection
      * @param int $offset ss the row to start calculations from (1-based)
      * @param bool $inputarr array of bind variables
      * @param int $secs2cache is a private parameter only used by jlim
-     * @return ADORecordSet|bool|RecordSet
+     * @return ADORecordSet|bool
      */
     public function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
     {
@@ -1172,7 +1343,8 @@ class ADOConnection
     /**
      * Create serializable recordset. Breaks rs link to connection.
      *
-     * @param rs            the recordset to serialize
+     * @param ADORecordSet $rs the RecordSet to serialize
+     * @return ADORecordSet
      */
     public function SerializableRS(&$rs)
     {
@@ -1188,35 +1360,40 @@ class ADOConnection
      * input recordset's cursor should be at beginning, and
      * old $rs will be closed.
      *
-     * @param rs            the recordset to copy
-     * @param [nrows]      number of rows to retrieve (optional)
-     * @param [offset]     offset by number of rows (optional)
-     * @return             the new recordset
+     * @param ADORecordSet $rs the recordset to copy
+     * @param int $nrows number of rows to retrieve (optional)
+     * @param int $offset offset by number of rows (optional)
+     * @param bool $close
+     * @return bool|ADORecordSet
      */
     public function &_rs2rs(&$rs, $nrows = -1, $offset = -1, $close = true)
     {
         if (!$rs) {
-            $false = false;
-            return $false;
+            return false;
         }
+
         $dbtype = $rs->databaseType;
         if (!$dbtype) {
-            $rs = $rs; // required to prevent crashing in 4.2.1, but does not happen in 4.3.1 -- why ?
             return $rs;
         }
+
         if (($dbtype == 'array' || $dbtype == 'csv') && $nrows == -1 && $offset == -1) {
             $rs->MoveFirst();
-            $rs = $rs; // required to prevent crashing in 4.2.1, but does not happen in 4.3.1-- why ?
+
             return $rs;
         }
+
         $flds = array();
+
         for ($i = 0, $max = $rs->FieldCount(); $i < $max; $i++) {
             $flds[] = $rs->FetchField($i);
         }
 
         $arr = $rs->GetArrayLimit($nrows, $offset);
-        //print_r($arr);
-        if ($close) $rs->Close();
+
+        if ($close) {
+            $rs->Close();
+        }
 
         $arrayClass = $this->arrayClass;
 
@@ -1226,6 +1403,7 @@ class ADOConnection
         $rs2->dataProvider = $this->dataProvider;
         $rs2->InitArrayFields($arr, $flds);
         $rs2->fetchMode = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
+
         return $rs2;
     }
 
@@ -1327,9 +1505,14 @@ class ADOConnection
         return $ret;
     }
 
+    /**
+     * @param $sql
+     * @param bool $inputarr
+     * @param bool $trim
+     * @return array|bool
+     */
     public function GetCol($sql, $inputarr = false, $trim = false)
     {
-
         $rs = $this->Execute($sql, $inputarr);
         if ($rs) {
             $rv = array();
@@ -1345,8 +1528,10 @@ class ADOConnection
                 }
             }
             $rs->Close();
-        } else
+        } else {
             $rv = false;
+        }
+
         return $rv;
     }
 
@@ -1373,13 +1558,21 @@ class ADOConnection
         return $rv;
     }
 
+    /**
+     * @param ADORecordSet $rs
+     * @param bool $addfieldnames
+     * @return ADORecordSet|bool
+     */
     public function Transpose(&$rs, $addfieldnames = true)
     {
         $rs2 = $this->_rs2rs($rs);
-        $false = false;
-        if (!$rs2) return $false;
+
+        if (!$rs2) {
+            return false;
+        }
 
         $rs2->_transpose($addfieldnames);
+
         return $rs2;
     }
 
@@ -1390,9 +1583,24 @@ class ADOConnection
 
         If dayFraction=1.5 means 1.5 days from now, 1.0/24 for 1 hour.
     */
+
+    /**
+     * Calculate the offset of a date for a particular database and generate
+     * appropriate SQL. Useful for calculating future/past dates and storing
+     * in a database.
+     *
+     * If dayFraction=1.5 means 1.5 days from now, 1.0/24 for 1 hour.
+     *
+     * @param float $dayFraction
+     * @param bool|string $date
+     * @return string
+     */
     public function OffsetDate($dayFraction, $date = false)
     {
-        if (!$date) $date = $this->sysDate;
+        if (!$date) {
+            $date = $this->sysDate;
+        }
+
         return '(' . $date . '+' . $dayFraction . ')';
     }
 
@@ -1566,20 +1774,27 @@ class ADOConnection
      * @param int $nrows
      * @param int $offset is the row to start calculations from (1-based)
      * @param mixed $inputarr
-     * @return ADORecordSet|bool|RecordSet
+     * @return ADORecordSet|bool
      */
     public function CacheSelectLimit($secs2cache, $sql, $nrows = -1, $offset = -1, $inputarr = false)
     {
         if (!is_numeric($secs2cache)) {
-            if ($sql === false) $sql = -1;
-            if ($offset == -1) $offset = false;
-            // sql,    nrows, offset,inputarr
-            $rs = $this->SelectLimit($secs2cache, $sql, $nrows, $offset, $this->cacheSecs);
-        } else {
-            if ($sql === false) $this->outp_throw("Warning: \$sql missing from CacheSelectLimit()", 'CacheSelectLimit');
-            $rs = $this->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
+            if ($sql === false) {
+                $sql = -1;
+            }
+
+            if ($offset == -1) {
+                $offset = false;
+            }
+
+            return $this->SelectLimit($secs2cache, $sql, $nrows, $offset, $this->cacheSecs);
         }
-        return $rs;
+
+        if ($sql === false) {
+            $this->outp_throw("Warning: \$sql missing from CacheSelectLimit()", 'CacheSelectLimit');
+        }
+
+        return $this->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
     }
 
     /**
@@ -1759,6 +1974,16 @@ class ADOConnection
 
         $forceUpdate means that even if the data has not changed, perform update.
      */
+
+    /**
+     * @param string $table
+     * @param $fields_values
+     * @param string $mode
+     * @param bool $where
+     * @param bool $forceUpdate
+     * @param bool $magicq
+     * @return ADORecordSet|bool
+     */
     public function AutoExecute($table, $fields_values, $mode = 'INSERT', $where = FALSE, $forceUpdate = true, $magicq = false)
     {
         $false = false;
@@ -1790,6 +2015,7 @@ class ADOConnection
         $ret = false;
         if ($sql) $ret = $this->Execute($sql);
         if ($ret) $ret = true;
+
         return $ret;
     }
 
@@ -1818,7 +2044,10 @@ class ADOConnection
         }
         //********************************************************//
 
-        if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR . '/adodb-lib.inc.php');
+        if (empty($ADODB_INCLUDED_LIB)) {
+            include(ADODB_DIR . '/adodb-lib.inc.php');
+        }
+
         return _adodb_getupdatesql($this, $rs, $arrFields, $forceUpdate, $magicq, $force);
     }
 
@@ -1918,6 +2147,9 @@ class ADOConnection
         return $old;
     }
 
+    /**
+     * @return bool
+     */
     public function GetCharSet()
     {
         return false;
@@ -1958,8 +2190,10 @@ class ADOConnection
 
 
     /**
-     *  Change the SQL connection locale to a specified locale.
-     *  This is used to get the date formats written depending on the client locale.
+     * Change the SQL connection locale to a specified locale.
+     * This is used to get the date formats written depending on the client locale.
+     *
+     * @param string $locale
      */
     public function SetDateLocale($locale = 'En')
     {
@@ -2023,8 +2257,7 @@ class ADOConnection
 
     public function GetActiveRecords($table, $where = false, $bindarr = false, $primkeyArr = false)
     {
-        $arr = $this->GetActiveRecordsClass('ADODB_Active_Record', $table, $where, $bindarr, $primkeyArr);
-        return $arr;
+        return $this->GetActiveRecordsClass('ADODB_Active_Record', $table, $where, $bindarr, $primkeyArr);
     }
 
     /**
@@ -2055,12 +2288,16 @@ class ADOConnection
         $this->_transmode = $transaction_mode;
     }
 
-    /*
-    http://msdn2.microsoft.com/en-US/ms173763.aspx
-    http://dev.mysql.com/doc/refman/5.0/en/innodb-transaction-isolation.html
-    http://www.postgresql.org/docs/8.1/interactive/sql-set-transaction.html
-    http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_10005.htm
-    */
+    /**
+     * http://msdn2.microsoft.com/en-US/ms173763.aspx
+     * http://dev.mysql.com/doc/refman/5.0/en/innodb-transaction-isolation.html
+     * http://www.postgresql.org/docs/8.1/interactive/sql-set-transaction.html
+     * http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_10005.htm
+     *
+     * @param $mode
+     * @param $db
+     * @return mixed|string
+     */
     public function MetaTransaction($mode, $db)
     {
         $mode = strtoupper($mode);
@@ -2151,16 +2388,14 @@ class ADOConnection
         return false;
     }
 
-
     /**
-     * @param ttype can either be 'VIEW' or 'TABLE' or false.
-     *         If false, both views and tables are returned.
+     * @param bool|string $ttype can either be 'VIEW' or 'TABLE' or false.
+     *        If false, both views and tables are returned.
      *        "VIEW" returns only views
      *        "TABLE" returns only tables
-     * @param showSchema returns the schema/user with the table name, eg. USER.TABLE
-     * @param mask  is the input mask - only supported by oci8 and postgresql
-     *
-     * @return  array of tables for current database.
+     * @param bool|string $showSchema the schema/user with the table name, eg. USER.TABLE
+     * @param bool|string $mask the input mask - only supported by oci8 and postgresql
+     * @return array|bool tables for current database.
      */
     public function MetaTables($ttype = false, $showSchema = false, $mask = false)
     {
@@ -2616,5 +2851,4 @@ class ADOConnection
         $rs = $this->PageExecute($sql, $nrows, $page, $inputarr, $secs2cache);
         return $rs;
     }
-
 }
