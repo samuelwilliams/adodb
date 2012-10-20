@@ -1156,7 +1156,7 @@ function GenID($seqname='adodbseq',$startID=1)
 /**
  * @param $table string name of the table, not needed by all databases (eg. mysql), default ''
  * @param $column string name of the column, not needed by all databases (eg. mysql), default ''
- * @return  the last inserted ID. Not all databases support this.
+ * @return int|bool the last inserted ID. Not all databases support this.
  */
 function Insert_ID($table='',$column='')
 {
@@ -1186,7 +1186,7 @@ function PO_Insert_ID($table="", $id="")
 }
 
 /**
-* @return # rows affected by UPDATE/DELETE
+* @return int # rows affected by UPDATE/DELETE
 */
 function Affected_Rows()
 {
