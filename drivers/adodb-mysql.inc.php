@@ -179,7 +179,7 @@ class ADODB_mysql extends ADOConnection {
 	
 	function _affectedrows()
 	{
-			return mysql_affected_rows($this->_connectionID);
+        return mysql_affected_rows($this->_connectionID);
 	}
   
  	 // See http://www.mysql.com/doc/M/i/Miscellaneous_functions.html

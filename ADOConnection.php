@@ -198,15 +198,56 @@ class ADOConnection
      */
     public $cacheSecs = 3600;
 
-// memcache
-    public $memCache = false; /// should we use memCache instead of caching in files
-    public $memCacheHost; /// memCache host
-    public $memCachePort = 11211; /// memCache port
-    public $memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
+    /**
+     * @var mixed
+     */
+    public $metaColumnsSQL;
 
-    public $sysDate = false; /// name of function that returns the current date
-    public $sysTimeStamp = false; /// name of function that returns the current timestamp
-    public $sysUTimeStamp = false; // name of function that returns the current timestamp accurate to the microsecond or nearest fraction
+// memcache
+    /**
+     * Should we use memCache instead of caching in files
+     *
+     * @var bool
+     */
+    public $memCache = false;
+
+    /**
+     * @var string host
+     */
+    public $memCacheHost;
+
+    /**
+     * @var int memCache port
+     */
+    public $memCachePort = 11211;
+
+    /**
+     * Use 'true' to store the item compressed (uses zlib)
+     *
+     * @var bool
+     */
+    public $memCacheCompress = false;
+
+    /**
+     * name of function that returns the current date
+     *
+     * @var bool|callable
+     */
+    public $sysDate = false;
+
+    /**
+     * ame of function that returns the current timestamp
+     *
+     * @var bool|callable
+     */
+    public $sysTimeStamp = false;
+
+    /**
+     * name of function that returns the current timestamp accurate to the microsecond or nearest fraction
+     *
+     * @var bool|string
+     */
+    public $sysUTimeStamp = false;
 
     /**
      * name of class used to generate array recordsets, which are pre-downloaded recordsets
@@ -215,16 +256,67 @@ class ADOConnection
      */
     public $arrayClass = 'ADORecordSet_array';
 
-    public $noNullStrings = false; /// oracle specific stuff - if true ensures that '' is converted to ' '
+    /**
+     * oracle specific stuff - if true ensures that '' is converted to ' '
+     *
+     * @var bool
+     */
+    public $noNullStrings = false;
+
+    /**
+     * @var int
+     */
     public $numCacheHits = 0;
+
+    /**
+     * @var int
+     */
     public $numCacheMisses = 0;
+
+    /**
+     * @var bool
+     */
     public $pageExecuteCountRows = true;
-    public $uniqueSort = false; /// indicates that all fields in order by must be unique
-    public $leftOuter = false; /// operator to use for left outer join in WHERE clause
-    public $rightOuter = false; /// operator to use for right outer join in WHERE clause
-    public $ansiOuter = false; /// whether ansi outer join syntax supported
-    public $autoRollback = false; // autoRollback on PConnect().
-    public $poorAffectedRows = false; // affectedRows not working or unreliable
+
+    /**
+     * indicates that all fields in order by must be unique
+     *
+     * @var bool
+     */
+    public $uniqueSort = false;
+
+    /**
+     * operator to use for left outer join in WHERE clause
+     *
+     * @var bool
+     */
+    public $leftOuter = false;
+
+    /**
+     * @var bool
+     */
+    public $rightOuter = false;
+
+    /**
+     * whether ansi outer join syntax supported
+     *
+     * @var bool
+     */
+    public $ansiOuter = false;
+
+    /**
+     * autoRollback on PConnect().
+     *
+     * @var bool
+     */
+    public $autoRollback = false;
+
+    /**
+     * affectedRows not working or unreliable
+     *
+     * @var bool
+     */
+    public $poorAffectedRows = false;
 
     /**
      * @var string
@@ -512,6 +604,30 @@ class ADOConnection
     }
 
     /**
+     * @param string $argHostname
+     * @param string $argUsername
+     * @param string $argPassword
+     * @param string $argDatabasename
+     * @return bool
+     */
+    public function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
+    {
+        return false;
+    }
+
+    /**
+     * @param string $argHostname
+     * @param string $argUsername
+     * @param string $argPassword
+     * @param string $argDatabasename
+     * @return bool
+     */
+    function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+    {
+        return false;
+    }
+
+    /**
      * Always force a new connection to database - currently only works with oracle
      *
      * @param string $argHostname Host to connect to
@@ -770,7 +886,7 @@ class ADOConnection
      * @param $offset
      * @param $count
      * @param bool $params
-     * @return bool|the
+     * @return bool|ADORecordSet
      */
     public function LimitQuery($sql, $offset, $count, $params = false)
     {
@@ -1182,7 +1298,7 @@ class ADOConnection
 
 
     /**
-     * @return  the last error message
+     * @return string the last error message
      */
     public function ErrorMsg()
     {
@@ -1192,13 +1308,17 @@ class ADOConnection
 
 
     /**
-     * @return the last error number. Normally 0 means no error.
+     * @return int the last error number. Normally 0 means no error.
      */
     public function ErrorNo()
     {
         return ($this->_errorMsg) ? -1 : 0;
     }
 
+    /**
+     * @param bool $err
+     * @return int
+     */
     public function MetaError($err = false)
     {
         include_once(ADODB_DIR . "/adodb-error.inc.php");
@@ -1206,6 +1326,10 @@ class ADOConnection
         return adodb_error($this->dataProvider, $this->databaseType, $err);
     }
 
+    /**
+     * @param $errno
+     * @return mixed
+     */
     public function MetaErrorMsg($errno)
     {
         include_once(ADODB_DIR . "/adodb-error.inc.php");
@@ -1221,7 +1345,7 @@ class ADOConnection
      */
     public function MetaPrimaryKeys($table, $owner = false)
     {
-// owner not used in base class - see oci8
+        // owner not used in base class - see oci8
         $p = array();
         $objs = $this->MetaColumns($table);
         if ($objs) {
@@ -2058,16 +2182,26 @@ class ADOConnection
      *
      * Note: This function should only be used on a recordset
      *       that is run against a single table.
+     *
+     * @param ADORecordSet $rs
+     * @param array $arrFields
+     * @param bool $magicq
+     * @param null $force
+     * @return bool|string
      */
     public function GetInsertSQL(&$rs, $arrFields, $magicq = false, $force = null)
     {
         global $ADODB_INCLUDED_LIB;
+
         if (!isset($force)) {
             global $ADODB_FORCE_TYPE;
             $force = $ADODB_FORCE_TYPE;
-
         }
-        if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR . '/adodb-lib.inc.php');
+
+        if (empty($ADODB_INCLUDED_LIB)) {
+            include(ADODB_DIR . '/adodb-lib.inc.php');
+        }
+
         return _adodb_getinsertsql($this, $rs, $arrFields, $magicq, $force);
     }
 
@@ -2089,8 +2223,14 @@ class ADOConnection
      *
      *    $conn->Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');
      *    $conn->UpdateBlob('blobtable','blobcol',$blob,'id=1');
+     *
+     * @param string $table
+     * @param string $column
+     * @param string $val
+     * @param string $where
+     * @param string $blobtype
+     * @return bool
      */
-
     public function UpdateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
     {
         return $this->Execute("UPDATE $table SET $column=? WHERE $where", array($val)) != false;
@@ -2114,26 +2254,47 @@ class ADOConnection
         return $this->UpdateBlob($table, $column, $val, $where, $blobtype);
     }
 
+    /**
+     * @param $blob
+     * @return mixed
+     */
     public function BlobDecode($blob)
     {
         return $blob;
     }
 
+    /**
+     * @param $blob
+     * @return mixed
+     */
     public function BlobEncode($blob)
     {
         return $blob;
     }
 
+    /**
+     * @param $charset
+     * @return bool
+     */
     public function SetCharSet($charset)
     {
         return false;
     }
 
+    /**
+     * @param $field
+     * @param $ifNull
+     * @return string
+     */
     public function IfNull($field, $ifNull)
     {
         return " CASE WHEN $field is null THEN $ifNull ELSE $field END ";
     }
 
+    /**
+     * @param bool $enable
+     * @return bool
+     */
     public function LogSQL($enable = true)
     {
         include_once(ADODB_DIR . '/adodb-perf.inc.php');
@@ -2273,7 +2434,7 @@ class ADOConnection
     /**
      * Begin a Transaction. Must be followed by CommitTrans() or RollbackTrans().
      *
-     * @return true if succeeded or false if database does not support transactions
+     * @return bool true if succeeded or false if database does not support transactions
      */
     public function BeginTrans()
     {
@@ -2401,24 +2562,35 @@ class ADOConnection
     {
         global $ADODB_FETCH_MODE;
 
-
-        $false = false;
         if ($mask) {
-            return $false;
+            return false;
         }
+
         if ($this->metaTablesSQL) {
             $save = $ADODB_FETCH_MODE;
             $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-            if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
+            if ($this->fetchMode !== false) {
+                $savem = $this->SetFetchMode(false);
+            }
 
             $rs = $this->Execute($this->metaTablesSQL);
-            if (isset($savem)) $this->SetFetchMode($savem);
+
+            if (isset($savem)) {
+                $this->SetFetchMode($savem);
+            }
+
             $ADODB_FETCH_MODE = $save;
 
-            if ($rs === false) return $false;
+            if ($rs === false) {
+                return false;
+            }
+
             $arr = $rs->GetArray();
             $arr2 = array();
+
+            $hast = false;
+            $showt = 0;
 
             if ($hast = ($ttype && isset($arr[0][1]))) {
                 $showt = strncmp($ttype, 'T', 1);
@@ -2435,9 +2607,11 @@ class ADOConnection
                     $arr2[] = trim($arr[$i][0]);
             }
             $rs->Close();
+
             return $arr2;
         }
-        return $false;
+
+        return false;
     }
 
 
@@ -2453,11 +2627,11 @@ class ADOConnection
      * List columns in a database as an array of ADOFieldObjects.
      * See top of file for definition of object.
      *
-     * @param $table    table name to query
-     * @param $normalize    makes table name case-insensitive (required by some databases)
+     * @param string $table    table name to query
+     * @param bool $normalize    makes table name case-insensitive (required by some databases)
      * @schema is optional database schema to use - not supported by all databases.
      *
-     * @return  array of ADOFieldObjects for current table.
+     * @return array of ADOFieldObjects for current table.
      */
     public function MetaColumns($table, $normalize = true)
     {
@@ -2502,35 +2676,26 @@ class ADOConnection
 
     /**
      * List indexes on a table as an array.
-     * @param table  table name to query
-     * @param primary true to only show primary keys. Not actually used for most databases
+     * @param string $table  table name to query
+     * @param bool $primary true to only show primary keys. Not actually used for most databases
+     * @param bool $owner
      *
-     * @return array of indexes on current table. Each element represents an index, and is itself an associative array.
-
-    Array (
-    [name_of_index] => Array
-    (
-    [unique] => true or false
-    [columns] => Array
-    (
-    [0] => firstname
-    [1] => lastname
-    )
-    )
+     * @return bool array of indexes on current table. Each element represents an index, and is itself an associative array.
      */
     public function MetaIndexes($table, $primary = false, $owner = false)
     {
-        $false = false;
-        return $false;
+        return false;
     }
 
     /**
      * List columns names in a table as an array.
-     * @param table    table name to query
      *
-     * @return  array of column names for current table.
+     * @param $table
+     * @param bool $numIndexes
+     * @param bool $useattnum
+     * @return array|bool
      */
-    public function MetaColumnNames($table, $numIndexes = false, $useattnum = false /* only for postgres */)
+    public function MetaColumnNames($table, $numIndexes = false, $useattnum = false)
     {
         $objarr = $this->MetaColumns($table);
         if (!is_array($objarr)) {
@@ -2560,7 +2725,7 @@ class ADOConnection
      *
      * Usage: $db->Concat($str1,$str2);
      *
-     * @return concatenated string
+     * @return string concatenated string
      */
     public function Concat()
     {
@@ -2572,9 +2737,10 @@ class ADOConnection
     /**
      * Converts a date "d" to a string that the database can understand.
      *
-     * @param d    a date in Unix date time format.
+     * @param string $d    a date in Unix date time format.
+     * @param bool $isfld
      *
-     * @return  date string in database date format
+     * @return string  date string in database date format
      */
     public function DBDate($d, $isfld = false)
     {
@@ -2617,9 +2783,9 @@ class ADOConnection
     /**
      * Converts a timestamp "ts" to a string that the database can understand.
      *
-     * @param ts    a timestamp in Unix date time format.
-     *
-     * @return  timestamp string in database timestamp format
+     * @param string $ts    a timestamp in Unix date time format.
+     * @param bool $isfld
+     * @return string  timestamp string in database timestamp format
      */
     public function DBTimeStamp($ts, $isfld = false)
     {
@@ -2642,34 +2808,37 @@ class ADOConnection
 
     /**
      * Also in ADORecordSet.
-     * @param $v is a date string in YYYY-MM-DD format
      *
-     * @return date in unix timestamp format, or 0 if before TIMESTAMP_FIRST_YEAR, or false if invalid date format
+     * @param mixed $v is a date string in YYYY-MM-DD format
+     * @return string date in unix timestamp format, or 0 if before TIMESTAMP_FIRST_YEAR, or false if invalid date format
      */
     static public function UnixDate($v)
     {
         if (is_object($v)) {
-            // odbtp support
-            //( [year] => 2004 [month] => 9 [day] => 4 [hour] => 12 [minute] => 44 [second] => 8 [fraction] => 0 )
             return adodb_mktime($v->hour, $v->minute, $v->second, $v->month, $v->day, $v->year);
         }
 
-        if (is_numeric($v) && strlen($v) !== 8) return $v;
-        if (!preg_match("|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})|",
-            ($v), $rr)
-        ) return false;
+        if (is_numeric($v) && strlen($v) !== 8) {
+            return $v;
+        }
 
-        if ($rr[1] <= TIMESTAMP_FIRST_YEAR) return 0;
-        // h-m-s-MM-DD-YY
+        if (!preg_match("|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})|", ($v), $rr)) {
+            return false;
+        }
+
+        if ($rr[1] <= TIMESTAMP_FIRST_YEAR) {
+            return 0;
+        }
+
         return @adodb_mktime(0, 0, 0, $rr[2], $rr[3], $rr[1]);
     }
 
 
     /**
      * Also in ADORecordSet.
-     * @param $v is a timestamp string in YYYY-MM-DD HH-NN-SS format
      *
-     * @return date in unix timestamp format, or 0 if before TIMESTAMP_FIRST_YEAR, or false if invalid date format
+     * @param string $v is a timestamp string in YYYY-MM-DD HH-NN-SS format
+     * @return string date in unix timestamp format, or 0 if before TIMESTAMP_FIRST_YEAR, or false if invalid date format
      */
     static public function UnixTimeStamp($v)
     {
@@ -2696,10 +2865,10 @@ class ADOConnection
      *
      * Format database date based on user defined format.
      *
-     * @param v      is the character date in YYYY-MM-DD format, returned by database
-     * @param fmt     is the format to apply to it, using date()
-     *
-     * @return a date formated as user desires
+     * @param string $v      is the character date in YYYY-MM-DD format, returned by database
+     * @param string $fmt     is the format to apply to it, using date()
+     * @param bool $gmt
+     * @return string a date formated as user desires
      */
 
     public function UserDate($v, $fmt = 'Y-m-d', $gmt = false)
@@ -2718,9 +2887,9 @@ class ADOConnection
 
     /**
      *
-     * @param v      is the character timestamp in YYYY-MM-DD hh:mm:ss format
-     * @param fmt     is the format to apply to it, using date()
-     *
+     * @param string $v      is the character timestamp in YYYY-MM-DD hh:mm:ss format
+     * @param string $fmt     is the format to apply to it, using date()
+     * @param bool|string $gmt
      * @return a timestamp formated as user desires
      */
     public function UserTimeStamp($v, $fmt = 'Y-m-d H:i:s', $gmt = false)
@@ -2771,11 +2940,11 @@ class ADOConnection
      * to the string single-quotes.
      * An example is  $db->qstr("Don't bother",magic_quotes_runtime());
      *
-     * @param s            the string to quote
-     * @param [magic_quotes]    if $s is GET/POST var, set to get_magic_quotes_gpc().
+     * @param string $s            the string to quote
+     * @param bool $magic_quotes    if $s is GET/POST var, set to get_magic_quotes_gpc().
      *                This undoes the stupidity of magic quotes for GPC.
      *
-     * @return  quoted string to be sent back to database
+     * @return string quoted string to be sent back to database
      */
     public function qstr($s, $magic_quotes = false)
     {
@@ -2808,12 +2977,12 @@ class ADOConnection
      *
      * See readme.htm#ex8 for an example of usage.
      *
-     * @param sql
-     * @param nrows        is the number of rows per page to get
-     * @param page        is the page number to get (1-based)
-     * @param [inputarr]    array of bind variables
-     * @param [secs2cache]        is a private parameter only used by jlim
-     * @return        the recordset ($rs->databaseType == 'array')
+     * @param string $sql
+     * @param int $nrows        is the number of rows per page to get
+     * @param int $page        is the page number to get (1-based)
+     * @param mixed $inputarr    array of bind variables
+     * @param int $secs2cache        is a private parameter only used by jlim
+     * @return array       the recordset ($rs->databaseType == 'array')
      *
      * NOTE: phpLens uses a different algorithm and does not use PageExecute().
      *
@@ -2824,6 +2993,7 @@ class ADOConnection
         if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR . '/adodb-lib.inc.php');
         if ($this->pageExecuteCountRows) $rs = _adodb_pageexecute_all_rows($this, $sql, $nrows, $page, $inputarr, $secs2cache);
         else $rs = _adodb_pageexecute_no_last_page($this, $sql, $nrows, $page, $inputarr, $secs2cache);
+
         return $rs;
     }
 
@@ -2833,12 +3003,12 @@ class ADOConnection
      * $nrows rows per page. It also saves two boolean values saying if the given page is the first
      * and/or last one of the recordset. Added by Iv�n Oliva to provide recordset pagination.
      *
-     * @param secs2cache    seconds to cache data, set to 0 to force query
-     * @param sql
-     * @param nrows        is the number of rows per page to get
-     * @param page        is the page number to get (1-based)
-     * @param [inputarr]    array of bind variables
-     * @return        the recordset ($rs->databaseType == 'array')
+     * @param string $secs2cache    seconds to cache data, set to 0 to force query
+     * @param string $sql
+     * @param int $nrows        is the number of rows per page to get
+     * @param int $page        is the page number to get (1-based)
+     * @param mixed $inputarr    array of bind variables
+     * @return array        the recordset ($rs->databaseType == 'array')
      */
     public function CachePageExecute($secs2cache, $sql, $nrows, $page, $inputarr = false)
     {
