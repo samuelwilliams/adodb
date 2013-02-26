@@ -1,0 +1,17 @@
+{
+    "name": "badcow/adodb",
+    "description": "Database manipulation library.",
+    "license": "LGPL-2.1",
+    "authors": [
+        {
+            "name": "John Lim",
+            "email": "jlim@natsoft.com"
+        }
+    ],
+    "require": {
+        "php": ">5.2.0"
+    },
+    "autoload": {
+        "files": ["lib/adodb.inc.php"]
+    }
+}
