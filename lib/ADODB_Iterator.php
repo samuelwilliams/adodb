@@ -15,9 +15,6 @@ class ADODB_Iterator implements Iterator
         $this->rs = $rs;
     }
 
-    /**
-     *
-     */
     public function rewind()
     {
         $this->rs->MoveFirst();
@@ -47,9 +44,6 @@ class ADODB_Iterator implements Iterator
         return $this->rs->fields;
     }
 
-    /**
-     *
-     */
     public function next()
     {
         $this->rs->MoveNext();
@@ -58,13 +52,13 @@ class ADODB_Iterator implements Iterator
     /**
      * @param $func
      * @param $params
+     *
      * @return mixed
      */
     public function __call($func, $params)
     {
         return call_user_func_array(array($this->rs, $func), $params);
     }
-
 
     /**
      * @return bool

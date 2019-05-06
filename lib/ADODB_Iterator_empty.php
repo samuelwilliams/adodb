@@ -15,9 +15,6 @@ class ADODB_Iterator_empty implements Iterator
         $this->rs = $rs;
     }
 
-    /**
-     *
-     */
     public function rewind()
     {
     }
@@ -46,9 +43,6 @@ class ADODB_Iterator_empty implements Iterator
         return false;
     }
 
-    /**
-     *
-     */
     public function next()
     {
     }
@@ -56,6 +50,7 @@ class ADODB_Iterator_empty implements Iterator
     /**
      * @param $func
      * @param $params
+     *
      * @return mixed
      */
     public function __call($func, $params)

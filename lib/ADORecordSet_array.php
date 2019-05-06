@@ -8,24 +8,23 @@
  */
 class ADORecordSet_array extends ADORecordSet
 {
-    var $databaseType = 'array';
+    public $databaseType = 'array';
 
-    var $_array; // holds the 2-dimensional data array
-    var $_types; // the array of types of each column (C B I L M)
-    var $_colnames; // names of each column in array
-    var $_skiprow1; // skip 1st row because it holds column names
-    var $_fieldobjects; // holds array of field objects
-    var $canSeek = true;
-    var $affectedrows = false;
-    var $insertid = false;
-    var $sql = '';
-    var $compat = false;
+    public $_array; // holds the 2-dimensional data array
+    public $_types; // the array of types of each column (C B I L M)
+    public $_colnames; // names of each column in array
+    public $_skiprow1; // skip 1st row because it holds column names
+    public $_fieldobjects; // holds array of field objects
+    public $canSeek = true;
+    public $affectedrows = false;
+    public $insertid = false;
+    public $sql = '';
+    public $compat = false;
 
     /**
-     * Constructor
-     *
+     * Constructor.
      */
-    function ADORecordSet_array($fakeid = 1)
+    public function ADORecordSet_array($fakeid = 1)
     {
         global $ADODB_FETCH_MODE, $ADODB_COMPAT_FETCH;
 
@@ -35,11 +34,13 @@ class ADORecordSet_array extends ADORecordSet
         $this->fetchMode = $ADODB_FETCH_MODE;
     }
 
-    function _transpose($addfieldnames = true)
+    public function _transpose($addfieldnames = true)
     {
         global $ADODB_INCLUDED_LIB;
 
-        if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR . '/adodb-lib.inc.php');
+        if (empty($ADODB_INCLUDED_LIB)) {
+            include ADODB_DIR.'/adodb-lib.inc.php';
+        }
         $hdr = true;
 
         $fobjs = $addfieldnames ? $this->_fieldobjects : false;
@@ -64,7 +65,6 @@ class ADORecordSet_array extends ADORecordSet
         $this->fields = reset($this->_array);
 
         $this->_initrs();
-
     }
 
     /**
@@ -78,7 +78,7 @@ class ADORecordSet_array extends ADORecordSet
      * @param [colnames]    array of column names. If set, then the first row of
      *            $array should not hold the column names.
      */
-    function InitArray($array, $typearr, $colnames = false)
+    public function InitArray($array, $typearr, $colnames = false)
     {
         $this->_array = $array;
         $this->_types = $typearr;
@@ -93,14 +93,14 @@ class ADORecordSet_array extends ADORecordSet
     }
 
     /**
-     * Setup the Array and datatype file objects
+     * Setup the Array and datatype file objects.
      *
      * @param array        is a 2-dimensional array holding the data.
      *            The first row should hold the column names
      *            unless paramter $colnames is used.
      * @param fieldarr    holds an array of ADOFieldObject's.
      */
-    function InitArrayFields(&$array, &$fieldarr)
+    public function InitArrayFields(&$array, &$fieldarr)
     {
         $this->_array = $array;
         $this->_skiprow1 = false;
@@ -110,45 +110,52 @@ class ADORecordSet_array extends ADORecordSet
         $this->Init();
     }
 
-    function GetArray($nRows = -1)
+    public function GetArray($nRows = -1)
     {
-        if ($nRows == -1 && $this->_currentRow <= 0 && !$this->_skiprow1) {
+        if (-1 == $nRows && $this->_currentRow <= 0 && !$this->_skiprow1) {
             return $this->_array;
         } else {
             $arr = ADORecordSet::GetArray($nRows);
+
             return $arr;
         }
     }
 
-    function _initrs()
+    public function _initrs()
     {
         $this->_numOfRows = sizeof($this->_array);
-        if ($this->_skiprow1) $this->_numOfRows -= 1;
+        if ($this->_skiprow1) {
+            --$this->_numOfRows;
+        }
 
         $this->_numOfFields = (isset($this->_fieldobjects)) ?
                 sizeof($this->_fieldobjects) : sizeof($this->_types);
     }
 
     /* Use associative array to get fields array */
-    function Fields($colname)
+    public function Fields($colname)
     {
         $mode = isset($this->adodbFetchMode) ? $this->adodbFetchMode : $this->fetchMode;
 
         if ($mode & ADODB_FETCH_ASSOC) {
-            if (!isset($this->fields[$colname]) && !is_null($this->fields[$colname])) $colname = strtolower($colname);
+            if (!isset($this->fields[$colname]) && !is_null($this->fields[$colname])) {
+                $colname = strtolower($colname);
+            }
+
             return $this->fields[$colname];
         }
         if (!$this->bind) {
             $this->bind = array();
-            for ($i = 0; $i < $this->_numOfFields; $i++) {
+            for ($i = 0; $i < $this->_numOfFields; ++$i) {
                 $o = $this->FetchField($i);
                 $this->bind[strtoupper($o->name)] = $i;
             }
         }
+
         return $this->fields[$this->bind[strtoupper($colname)]];
     }
 
-    function FetchField($fieldOffset = -1)
+    public function FetchField($fieldOffset = -1)
     {
         if (isset($this->_fieldobjects)) {
             return $this->_fieldobjects[$fieldOffset];
@@ -161,29 +168,38 @@ class ADORecordSet_array extends ADORecordSet
         return $o;
     }
 
-    function _seek($row)
+    public function _seek($row)
     {
         if (sizeof($this->_array) && 0 <= $row && $row < $this->_numOfRows) {
             $this->_currentRow = $row;
-            if ($this->_skiprow1) $row += 1;
+            if ($this->_skiprow1) {
+                ++$row;
+            }
             $this->fields = $this->_array[$row];
+
             return true;
         }
+
         return false;
     }
 
-    function MoveNext()
+    public function MoveNext()
     {
         if (!$this->EOF) {
-            $this->_currentRow++;
+            ++$this->_currentRow;
 
             $pos = $this->_currentRow;
 
             if ($this->_numOfRows <= $pos) {
-                if (!$this->compat) $this->fields = false;
+                if (!$this->compat) {
+                    $this->fields = false;
+                }
             } else {
-                if ($this->_skiprow1) $pos += 1;
+                if ($this->_skiprow1) {
+                    ++$pos;
+                }
                 $this->fields = $this->_array[$pos];
+
                 return true;
             }
             $this->EOF = true;
@@ -192,22 +208,27 @@ class ADORecordSet_array extends ADORecordSet
         return false;
     }
 
-    function _fetch()
+    public function _fetch()
     {
         $pos = $this->_currentRow;
 
         if ($this->_numOfRows <= $pos) {
-            if (!$this->compat) $this->fields = false;
+            if (!$this->compat) {
+                $this->fields = false;
+            }
+
             return false;
         }
-        if ($this->_skiprow1) $pos += 1;
+        if ($this->_skiprow1) {
+            ++$pos;
+        }
         $this->fields = $this->_array[$pos];
+
         return true;
     }
 
-    function _close()
+    public function _close()
     {
         return true;
     }
-
 } // ADORecordSet_array

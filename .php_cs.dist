@@ -1,0 +1,16 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__.'/lib')
+;
+
+$config = PhpCsFixer\Config::create()
+    ->setRiskyAllowed(true)
+    ->setRules(array(
+        '@Symfony' => true,
+        'array_syntax' => array('syntax' => 'long'),
+    ))
+    ->setFinder($finder)
+;
+
+return $config;

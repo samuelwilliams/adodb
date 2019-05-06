@@ -6,11 +6,10 @@
  * the BSD license will take precedence.
  *
  * Set tabs to 4 for best viewing.
- *
  */
 
 /*
- * Concept from daniel.lucazeau@ajornet.com. 
+ * Concept from daniel.lucazeau@ajornet.com.
  *
  * @param db		Adodb database connection
  * @param tables	List of tables to join
@@ -18,8 +17,8 @@
  * @colfield		Pivot field to slice and display in columns, if we want to calculate
  *						ranges, we pass in an array (see example2)
  * @where			Where clause. Optional.
- * @aggfield		This is the field to sum. Optional. 
- *						Since 2.3.1, if you can use your own aggregate function 
+ * @aggfield		This is the field to sum. Optional.
+ *						Since 2.3.1, if you can use your own aggregate function
  *						instead of SUM, eg. $aggfield = 'fieldname'; $aggfn = 'AVG';
  * @sumlabel		Prefix to display in sum columns. Optional.
  * @aggfn			Aggregate function to use (could be AVG, SUM, COUNT)
@@ -31,17 +30,26 @@
 function PivotTableSQL(&$db, $tables, $rowfields, $colfield, $where = false,
                        $aggfield = false, $sumlabel = 'Sum ', $aggfn = 'SUM', $showcount = true)
 {
-    if ($aggfield) $hidecnt = true;
-    else $hidecnt = false;
+    if ($aggfield) {
+        $hidecnt = true;
+    } else {
+        $hidecnt = false;
+    }
 
-    $iif = strpos($db->databaseType, 'access') !== false;
+    $iif = false !== strpos($db->databaseType, 'access');
     // note - vfp 6 still doesn' work even with IIF enabled || $db->databaseType == 'vfp';
 
     //$hidecnt = false;
 
-    if ($where) $where = "\nWHERE $where";
-    if (!is_array($colfield)) $colarr = $db->GetCol("select distinct $colfield from $tables $where order by 1");
-    if (!$aggfield) $hidecnt = false;
+    if ($where) {
+        $where = "\nWHERE $where";
+    }
+    if (!is_array($colfield)) {
+        $colarr = $db->GetCol("select distinct $colfield from $tables $where order by 1");
+    }
+    if (!$aggfield) {
+        $hidecnt = false;
+    }
 
     $sel = "$rowfields, ";
     if (is_array($colfield)) {
@@ -62,10 +70,15 @@ function PivotTableSQL(&$db, $tables, $rowfields, $colfield, $where = false,
         }
     } else {
         foreach ($colarr as $v) {
-            if (!is_numeric($v)) $vq = $db->qstr($v);
-            else $vq = $v;
+            if (!is_numeric($v)) {
+                $vq = $db->qstr($v);
+            } else {
+                $vq = $v;
+            }
             $v = trim($v);
-            if (strlen($v) == 0) $v = 'null';
+            if (0 == strlen($v)) {
+                $v = 'null';
+            }
             if (!$hidecnt) {
                 $sel .= $iif ?
                         "\n\t$aggfn(IIF($colfield=$vq,1,0)) AS \"$v\", "
@@ -73,8 +86,11 @@ function PivotTableSQL(&$db, $tables, $rowfields, $colfield, $where = false,
                         "\n\t$aggfn(CASE WHEN $colfield=$vq THEN 1 ELSE 0 END) AS \"$v\", ";
             }
             if ($aggfield) {
-                if ($hidecnt) $label = $v;
-                else $label = "{$v}_$aggfield";
+                if ($hidecnt) {
+                    $label = $v;
+                } else {
+                    $label = "{$v}_$aggfield";
+                }
                 $sel .= $iif ?
                         "\n\t$aggfn(IIF($colfield=$vq,$aggfield,0)) AS \"$label\", "
                         :
@@ -82,16 +98,16 @@ function PivotTableSQL(&$db, $tables, $rowfields, $colfield, $where = false,
             }
         }
     }
-    if ($aggfield && $aggfield != '1') {
+    if ($aggfield && '1' != $aggfield) {
         $agg = "$aggfn($aggfield)";
         $sel .= "\n\t$agg as \"$sumlabel$aggfield\", ";
     }
 
-    if ($showcount)
+    if ($showcount) {
         $sel .= "\n\tSUM(1) as Total";
-    else
+    } else {
         $sel = substr($sel, 0, strlen($sel) - 2);
-
+    }
 
     // Strip aliases
     $rowfields = preg_replace('/ AS (\w+)/i', '', $rowfields);
@@ -103,24 +119,23 @@ function PivotTableSQL(&$db, $tables, $rowfields, $colfield, $where = false,
 
 /* EXAMPLES USING MS NORTHWIND DATABASE */
 if (0) {
-
-# example1
-#
-# Query the main "product" table
-# Set the rows to CompanyName and QuantityPerUnit
-# and the columns to the Categories
-# and define the joins to link to lookup tables 
-# "categories" and "suppliers"
-#
+    // example1
+//
+    // Query the main "product" table
+    // Set the rows to CompanyName and QuantityPerUnit
+    // and the columns to the Categories
+    // and define the joins to link to lookup tables
+    // "categories" and "suppliers"
+//
 
     $sql = PivotTableSQL(
-        $gDB, # adodb connection
-        'products p ,categories c ,suppliers s', # tables
-        'CompanyName,QuantityPerUnit', # row fields
-        'CategoryName', # column fields
-        'p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID' # joins/where
+        $gDB, // adodb connection
+        'products p ,categories c ,suppliers s', // tables
+        'CompanyName,QuantityPerUnit', // row fields
+        'CategoryName', // column fields
+        'p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID' // joins/where
     );
-    print "<pre>$sql";
+    echo "<pre>$sql";
     $rs = $gDB->Execute($sql);
     rs2html($rs);
 
@@ -140,33 +155,33 @@ if (0) {
     FROM products p ,categories c ,suppliers s  WHERE p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID
     GROUP BY CompanyName,QuantityPerUnit
     */
-//=====================================================================
+    //=====================================================================
 
-# example2
-#
-# Query the main "product" table
-# Set the rows to CompanyName and QuantityPerUnit
-# and the columns to the UnitsInStock for diiferent ranges
-# and define the joins to link to lookup tables 
-# "categories" and "suppliers"
-#
+    // example2
+//
+    // Query the main "product" table
+    // Set the rows to CompanyName and QuantityPerUnit
+    // and the columns to the UnitsInStock for diiferent ranges
+    // and define the joins to link to lookup tables
+    // "categories" and "suppliers"
+//
     $sql = PivotTableSQL(
-        $gDB, # adodb connection
-        'products p ,categories c ,suppliers s', # tables
-        'CompanyName,QuantityPerUnit', # row fields
-        # column ranges
+        $gDB, // adodb connection
+        'products p ,categories c ,suppliers s', // tables
+        'CompanyName,QuantityPerUnit', // row fields
+        // column ranges
         array(
             ' 0 ' => 'UnitsInStock <= 0',
-            "1 to 5" => '0 < UnitsInStock and UnitsInStock <= 5',
-            "6 to 10" => '5 < UnitsInStock and UnitsInStock <= 10',
-            "11 to 15" => '10 < UnitsInStock and UnitsInStock <= 15',
-            "16+" => '15 < UnitsInStock'
+            '1 to 5' => '0 < UnitsInStock and UnitsInStock <= 5',
+            '6 to 10' => '5 < UnitsInStock and UnitsInStock <= 10',
+            '11 to 15' => '10 < UnitsInStock and UnitsInStock <= 15',
+            '16+' => '15 < UnitsInStock',
         ),
-        ' p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID', # joins/where
-        'UnitsInStock', # sum this field
-        'Sum' # sum label prefix
+        ' p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID', // joins/where
+        'UnitsInStock', // sum this field
+        'Sum' // sum label prefix
     );
-    print "<pre>$sql";
+    echo "<pre>$sql";
     $rs = $gDB->Execute($sql);
     rs2html($rs);
     /*
@@ -184,4 +199,3 @@ if (0) {
    GROUP BY CompanyName,QuantityPerUnit
     */
 }
-?>

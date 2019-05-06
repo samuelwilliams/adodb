@@ -1,34 +1,36 @@
 <?php
 
 /**
- * class for caching
+ * class for caching.
  */
 class ADODB_Cache_File
 {
+    public $createdir = true; // requires creation of temp dirs
 
-    var $createdir = true; // requires creation of temp dirs
-
-    function ADODB_Cache_File()
+    public function ADODB_Cache_File()
     {
         global $ADODB_INCLUDED_CSV;
-        if (empty($ADODB_INCLUDED_CSV)) include_once(ADODB_DIR . '/adodb-csvlib.inc.php');
+        if (empty($ADODB_INCLUDED_CSV)) {
+            include_once ADODB_DIR.'/adodb-csvlib.inc.php';
+        }
     }
 
     // write serialised recordset to cache item/file
-    function writecache($filename, $contents, $debug, $secs2cache)
+    public function writecache($filename, $contents, $debug, $secs2cache)
     {
         return adodb_write_file($filename, $contents, $debug);
     }
 
     // load serialised recordset and unserialise it
-    function &readcache($filename, &$err, $secs2cache, $rsClass)
+    public function &readcache($filename, &$err, $secs2cache, $rsClass)
     {
         $rs = csv2rs($filename, $err, $secs2cache, $rsClass);
+
         return $rs;
     }
 
     // flush all items in cache
-    function flushall($debug = false)
+    public function flushall($debug = false)
     {
         global $ADODB_CACHE_DIR;
 
@@ -36,33 +38,45 @@ class ADODB_Cache_File
 
         if (strlen($ADODB_CACHE_DIR) > 1) {
             $rez = $this->_dirFlush($ADODB_CACHE_DIR);
-            if ($debug) ADOConnection::outp("flushall: $dir<br><pre>\n" . $rez . "</pre>");
+            if ($debug) {
+                ADOConnection::outp("flushall: $dir<br><pre>\n".$rez.'</pre>');
+            }
         }
+
         return $rez;
     }
 
     // flush one file in cache
-    function flushcache($f, $debug = false)
+    public function flushcache($f, $debug = false)
     {
         if (!@unlink($f)) {
-            if ($debug) ADOConnection::outp("flushcache: failed for $f");
+            if ($debug) {
+                ADOConnection::outp("flushcache: failed for $f");
+            }
         }
     }
 
-    function getdirname($hash)
+    public function getdirname($hash)
     {
         global $ADODB_CACHE_DIR;
-        if (!isset($this->notSafeMode)) $this->notSafeMode = !ini_get('safe_mode');
-        return ($this->notSafeMode) ? $ADODB_CACHE_DIR . '/' . substr($hash, 0, 2) : $ADODB_CACHE_DIR;
+        if (!isset($this->notSafeMode)) {
+            $this->notSafeMode = !ini_get('safe_mode');
+        }
+
+        return ($this->notSafeMode) ? $ADODB_CACHE_DIR.'/'.substr($hash, 0, 2) : $ADODB_CACHE_DIR;
     }
 
     // create temp directories
-    function createdir($hash, $debug)
+    public function createdir($hash, $debug)
     {
         $dir = $this->getdirname($hash);
         if ($this->notSafeMode && !file_exists($dir)) {
             $oldu = umask(0);
-            if (!@mkdir($dir, 0771)) if (!is_dir($dir) && $debug) ADOConnection::outp("Cannot create $dir");
+            if (!@mkdir($dir, 0771)) {
+                if (!is_dir($dir) && $debug) {
+                    ADOConnection::outp("Cannot create $dir");
+                }
+            }
             umask($oldu);
         }
 
@@ -75,18 +89,29 @@ class ADODB_Cache_File
      * Just specify the directory, and tell it if you want to delete the directory or just clear it out.
      * Note: $kill_top_level is used internally in the function to flush subdirectories.
      */
-    function _dirFlush($dir, $kill_top_level = false)
+    public function _dirFlush($dir, $kill_top_level = false)
     {
-        if (!$dh = @opendir($dir)) return;
+        if (!$dh = @opendir($dir)) {
+            return;
+        }
 
         while (($obj = readdir($dh))) {
-            if ($obj == '.' || $obj == '..') continue;
-            $f = $dir . '/' . $obj;
+            if ('.' == $obj || '..' == $obj) {
+                continue;
+            }
+            $f = $dir.'/'.$obj;
 
-            if (strpos($obj, '.cache')) @unlink($f);
-            if (is_dir($f)) $this->_dirFlush($f, true);
+            if (strpos($obj, '.cache')) {
+                @unlink($f);
+            }
+            if (is_dir($f)) {
+                $this->_dirFlush($f, true);
+            }
         }
-        if ($kill_top_level === true) @rmdir($dir);
+        if (true === $kill_top_level) {
+            @rmdir($dir);
+        }
+
         return true;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Lightweight recordset when there are no records to be returned
+ * Lightweight recordset when there are no records to be returned.
  */
 class ADORecordSet_empty implements IteratorAggregate
 {
@@ -78,9 +78,6 @@ class ADORecordSet_empty implements IteratorAggregate
         return 0;
     }
 
-    /**
-     *
-     */
     public function Init()
     {
     }

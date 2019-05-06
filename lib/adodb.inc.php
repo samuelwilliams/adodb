@@ -1,9 +1,9 @@
 <?php
 /*
  * Set tabs to 4 for best viewing.
- * 
+ *
  * Latest version is available at http://adodb.sourceforge.net
- * 
+ *
  * This is the main include file for ADOdb.
  * Database specific drivers are stored in the adodb/drivers/adodb-*.inc.php
  *
@@ -11,16 +11,16 @@
  * Doxygen is a documentation generation tool and can be downloaded from http://doxygen.org/
  */
 
-require_once __DIR__ . '/ADODB_Cache_File.php';
-require_once __DIR__ . '/ADOConnection.php';
-require_once __DIR__ . '/ADOFetchObj.php';
-require_once __DIR__ . '/ADODB_Iterator_empty.php';
-require_once __DIR__ . '/ADORecordSet_empty.php';
-require_once __DIR__ . '/ADODB_Iterator.php';
-require_once __DIR__ . '/ADORecordSet.php';
-require_once __DIR__ . '/ADORecordSet_array.php';
-require_once __DIR__ . '/ADOFieldObject.php';
-require_once __DIR__ . '/helperFunctions.php';
+require_once __DIR__.'/ADODB_Cache_File.php';
+require_once __DIR__.'/ADOConnection.php';
+require_once __DIR__.'/ADOFetchObj.php';
+require_once __DIR__.'/ADODB_Iterator_empty.php';
+require_once __DIR__.'/ADORecordSet_empty.php';
+require_once __DIR__.'/ADODB_Iterator.php';
+require_once __DIR__.'/ADORecordSet.php';
+require_once __DIR__.'/ADORecordSet_array.php';
+require_once __DIR__.'/ADOFieldObject.php';
+require_once __DIR__.'/helperFunctions.php';
 
 if (defined('_ADODB_LAYER')) {
     exit;
@@ -28,17 +28,19 @@ if (defined('_ADODB_LAYER')) {
 
 define('_ADODB_LAYER', 1);
 
-/**
+/*
  * Set ADODB_DIR to the directory where this file resides...
  * This constant was formerly called $ADODB_RootPath
  */
-if (!defined('ADODB_DIR')) define('ADODB_DIR', dirname(__FILE__));
+if (!defined('ADODB_DIR')) {
+    define('ADODB_DIR', dirname(__FILE__));
+}
 
 //==============================================================================================
 // GLOBAL VARIABLES
 //==============================================================================================
 
-GLOBAL
+global
 $ADODB_vers, // database version
 $ADODB_COUNTRECS, // count number of records returned - slows down query
 $ADODB_CACHE_DIR, // directory to cache recordsets
@@ -72,17 +74,16 @@ define('ADODB_FORCE_EMPTY', 2);
 define('ADODB_FORCE_VALUE', 3);
 //********************************************************//
 
-
 if (!$ADODB_EXTENSION || ADODB_EXTENSION < 4.0) {
-
     define('ADODB_BAD_RS', '<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
 
-// allow [ ] @ ` " and . in table names
+    // allow [ ] @ ` " and . in table names
     define('ADODB_TABLE_REGEX', '([]0-9a-z_\:\"\`\.\@\[-]*)');
 
-// prefetching used by oracle
-    if (!defined('ADODB_PREFETCH_ROWS')) define('ADODB_PREFETCH_ROWS', 10);
-
+    // prefetching used by oracle
+    if (!defined('ADODB_PREFETCH_ROWS')) {
+        define('ADODB_PREFETCH_ROWS', 10);
+    }
 
     /*
     Controls ADODB_FETCH_ASSOC field-name case. Default is 2, use native case-names.
@@ -98,41 +99,48 @@ if (!$ADODB_EXTENSION || ADODB_EXTENSION < 4.0) {
     define('ADODB_FETCH_ASSOC', 2);
     define('ADODB_FETCH_BOTH', 3);
 
-    if (!defined('TIMESTAMP_FIRST_YEAR')) define('TIMESTAMP_FIRST_YEAR', 100);
+    if (!defined('TIMESTAMP_FIRST_YEAR')) {
+        define('TIMESTAMP_FIRST_YEAR', 100);
+    }
 
     // PHP's version scheme makes converting to numbers difficult - workaround
-    $_adodb_ver = (float)PHP_VERSION;
+    $_adodb_ver = (float) PHP_VERSION;
     if ($_adodb_ver >= 5.2) {
         define('ADODB_PHPVER', 0x5200);
-    } else if ($_adodb_ver >= 5.0) {
+    } elseif ($_adodb_ver >= 5.0) {
         define('ADODB_PHPVER', 0x5000);
-    } else
-        die("PHP5 or later required. You are running " . PHP_VERSION);
+    } else {
+        die('PHP5 or later required. You are running '.PHP_VERSION);
+    }
 }
 
 /**
- * @param array $src
- * @param array $dest
+ * @param array  $src
+ * @param array  $dest
  * @param string $data
+ *
  * @return mixed
  */
 function ADODB_str_replace($src, $dest, $data)
 {
-    if (ADODB_PHPVER >= 0x4050) return str_replace($src, $dest, $data);
+    if (ADODB_PHPVER >= 0x4050) {
+        return str_replace($src, $dest, $data);
+    }
 
     $s = reset($src);
     $d = reset($dest);
-    while ($s !== false) {
+    while (false !== $s) {
         $data = str_replace($s, $d, $data);
         $s = next($src);
         $d = next($dest);
     }
+
     return $data;
 }
 
 function ADODB_Setup()
 {
-    GLOBAL
+    global
     $ADODB_vers, // database version
     $ADODB_COUNTRECS, // count number of records returned - slows down query
     $ADODB_CACHE_DIR, // directory to cache recordsets
@@ -143,7 +151,9 @@ function ADODB_Setup()
     $ADODB_GETONE_EOF,
     $ADODB_QUOTE_FIELDNAMES;
 
-    if (empty($ADODB_CACHE_CLASS)) $ADODB_CACHE_CLASS = 'ADODB_Cache_File';
+    if (empty($ADODB_CACHE_CLASS)) {
+        $ADODB_CACHE_CLASS = 'ADODB_Cache_File';
+    }
     $ADODB_FETCH_MODE = ADODB_FETCH_DEFAULT;
     $ADODB_FORCE_TYPE = ADODB_FORCE_VALUE;
     $ADODB_GETONE_EOF = null;
@@ -152,32 +162,35 @@ function ADODB_Setup()
         $ADODB_CACHE_DIR = '/tmp'; //(isset($_ENV['TMP'])) ? $_ENV['TMP'] : '/tmp';
     } else {
         // do not accept url based paths, eg. http:/ or ftp:/
-        if (strpos($ADODB_CACHE_DIR, '://') !== false)
-            die("Illegal path http:// or ftp://");
+        if (false !== strpos($ADODB_CACHE_DIR, '://')) {
+            die('Illegal path http:// or ftp://');
+        }
     }
-
 
     // Initialize random number generator for randomizing cache flushes
     // -- note Since PHP 4.2.0, the seed  becomes optional and defaults to a random value if omitted.
-    srand(((double)microtime()) * 1000000);
+    srand(((float) microtime()) * 1000000);
 
     /**
      * ADODB version as a string.
      */
     $ADODB_vers = 'V5.15 19 Jan 2012  (c) 2000-2012 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
 
-    /**
+    /*
      * Determines whether recordset->RecordCount() is used.
      * Set to false for highest performance -- RecordCount() will always return -1 then
      * for databases that provide "virtual" recordcounts...
      */
-    if (!isset($ADODB_COUNTRECS)) $ADODB_COUNTRECS = true;
+    if (!isset($ADODB_COUNTRECS)) {
+        $ADODB_COUNTRECS = true;
+    }
 }
 
 ADODB_Setup();
 
 /**
  * @param $s
+ *
  * @return mixed
  */
 function _adodb_safedate($s)
@@ -187,22 +200,26 @@ function _adodb_safedate($s)
 
 /**
  * parse date string to prevent injection attack
- * date string will have one quote at beginning e.g. '3434343'
+ * date string will have one quote at beginning e.g. '3434343'.
  *
  * @param $s
+ *
  * @return string
  */
 function _adodb_safedateq($s)
 {
     $len = strlen($s);
-    if ($s[0] !== "'") $s2 = "'";
-    else $s2 = "'";
-    for ($i = 1; $i < $len; $i++) {
+    if ("'" !== $s[0]) {
+        $s2 = "'";
+    } else {
+        $s2 = "'";
+    }
+    for ($i = 1; $i < $len; ++$i) {
         $ch = $s[$i];
-        if ($ch === '\\') {
+        if ('\\' === $ch) {
             $s2 .= "'";
             break;
-        } elseif ($ch === "'") {
+        } elseif ("'" === $ch) {
             $s2 .= $ch;
             break;
         }
@@ -234,5 +251,5 @@ function ADODB_TransMonitor($dbms, $fn, $errno, $errmsg, $p1, $p2, &$thisConnect
 
 // DATE AND TIME FUNCTIONS
 if (!defined('ADODB_DATE_VERSION')) {
-    include(ADODB_DIR . '/adodb-time.inc.php');
+    include ADODB_DIR.'/adodb-time.inc.php';
 }
